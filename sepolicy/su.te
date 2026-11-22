@@ -1,0 +1,3 @@
+userdebug_or_eng(`
+  allow su self:qipcrtr_socket create_socket_perms_no_ioctl;
+')

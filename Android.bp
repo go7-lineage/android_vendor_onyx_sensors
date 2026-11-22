@@ -1,0 +1,30 @@
+prebuilt_etc {
+    name: "hexagonrpcd-sensorspd.rc",
+    src: "init/hexagonrpcd.rc",
+    sub_dir: "init",
+    vendor: true,
+}
+
+prebuilt_etc {
+    name: "hexagonrpcd-root-socinfo",
+    srcs: ["root/socinfo/*"],
+    sub_dir: "hexagonrpcd-root/socinfo",
+    vendor: true,
+}
+
+install_symlink {
+    name: "hexagonrpcd-root-sensors-registry",
+    installed_location: "etc/hexagonrpcd-root/sensors/registry",
+    symlink_target: "/mnt/vendor/persist/sensors/registry/registry",
+    vendor: true,
+}
+
+phony {
+    name: "onyx-sensors",
+    required: [
+        "hexagonrpcd",
+        "hexagonrpcd-root-sensors-registry",
+        "hexagonrpcd-root-socinfo",
+        "hexagonrpcd-sensorspd.rc",
+    ],
+}

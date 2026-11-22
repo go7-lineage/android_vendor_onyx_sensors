@@ -1,0 +1,13 @@
+[package]
+name = "ssc"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.93"
+publish = false
+description = "Client for the Qualcomm Snapdragon Sensor Core over QRTR"
+
+[dependencies]
+libc = "=0.2.161"
+
+[lints]
+workspace = true

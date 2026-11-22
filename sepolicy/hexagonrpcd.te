@@ -1,0 +1,18 @@
+type hexagonrpcd, domain;
+type hexagonrpcd_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hexagonrpcd)
+
+type fastrpc_device, dev_type;
+allow hexagonrpcd fastrpc_device:chr_file rw_file_perms;
+
+allow hexagonrpcd vendor_configs_file:dir r_dir_perms;
+allow hexagonrpcd vendor_configs_file:{ file lnk_file } r_file_perms;
+
+type vendor_persist_sensors_file, file_type;
+allow hexagonrpcd mnt_vendor_file:dir search;
+allow hexagonrpcd vendor_persist_sensors_file:dir r_dir_perms;
+allow hexagonrpcd vendor_persist_sensors_file:file r_file_perms;
+
+userdebug_or_eng(`
+  allow hexagonrpcd kmsg_debug_device:chr_file w_file_perms;
+')

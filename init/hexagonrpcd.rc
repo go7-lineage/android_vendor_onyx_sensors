@@ -1,0 +1,5 @@
+service vendor.hexagonrpcd-sensorspd /vendor/bin/hexagonrpcd -f /dev/fastrpc-adsp -d adsp -s -R /vendor/etc/hexagonrpcd-root
+    class core
+    user system
+    group system
+    stdio_to_kmsg

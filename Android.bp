@@ -19,9 +19,43 @@ install_symlink {
     vendor: true,
 }
 
+rust_library {
+    name: "libssc",
+    crate_name: "ssc",
+    srcs: ["ssc/src/lib.rs"],
+    edition: "2024",
+    rustlibs: ["liblibc"],
+    vendor: true,
+    lints: "android",
+    clippy_lints: "android",
+}
+
+rust_binary {
+    name: "android.hardware.sensors-service.onyx",
+    srcs: ["hal/src/main.rs"],
+    edition: "2024",
+    relative_install_path: "hw",
+    init_rc: ["init/sensors-onyx.rc"],
+    vintf_fragments: ["init/sensors-onyx.xml"],
+    vendor: true,
+    prefer_rlib: true,
+    rustlibs: [
+        "android.hardware.sensors-V3-rust",
+        "libbinder_rs",
+        "libfmq_rust",
+        "liblibc",
+        "liblog_rust",
+        "liblogger",
+        "libssc",
+    ],
+    lints: "android",
+    clippy_lints: "android",
+}
+
 phony {
     name: "onyx-sensors",
     required: [
+        "android.hardware.sensors-service.onyx",
         "hexagonrpcd",
         "hexagonrpcd-root-sensors-registry",
         "hexagonrpcd-root-socinfo",

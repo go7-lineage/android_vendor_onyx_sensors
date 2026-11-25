@@ -1,3 +1,4 @@
 /dev/fastrpc-adsp                         u:object_r:fastrpc_device:s0
 /vendor/bin/hexagonrpcd                   u:object_r:hexagonrpcd_exec:s0
 /mnt/vendor/persist/sensors(/.*)?         u:object_r:vendor_persist_sensors_file:s0
+/vendor/bin/hw/android\.hardware\.sensors-service\.onyx   u:object_r:hal_sensors_default_exec:s0

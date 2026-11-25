@@ -63,7 +63,7 @@ impl Suid {
         Encoder::new().fixed64(1, self.low).fixed64(2, self.high).finish()
     }
 
-    fn decode(buf: &[u8]) -> Result<Self> {
+    pub(crate) fn decode(buf: &[u8]) -> Result<Self> {
         let mut suid = Self { low: 0, high: 0 };
         for field in Fields::new(buf) {
             match field? {

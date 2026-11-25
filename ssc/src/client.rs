@@ -266,6 +266,7 @@ mod qrtr_link {
 mod tests {
     use super::*;
     use crate::pb::Encoder;
+    use crate::testutil::{ACCEL, report, response};
 
     #[derive(Default)]
     struct Fake {
@@ -284,47 +285,8 @@ mod tests {
         }
     }
 
-    const SENSOR: Suid = Suid { low: 1, high: 2 };
+    const SENSOR: Suid = ACCEL;
     const T: Duration = Duration::from_millis(10);
-
-    fn response(txn: u16, result: u16, client_id: u64) -> Packet {
-        Packet::Qmi(
-            qmi::encode(
-                Kind::Response,
-                txn,
-                msg::CONTROL,
-                &[
-                    (0x02, &[result.to_le_bytes(), [0, 0]].concat()),
-                    (0x10, &client_id.to_le_bytes()),
-                ],
-            )
-            .unwrap(),
-        )
-    }
-
-    fn report(suid: Suid, events: &[(u32, &[u8])]) -> Packet {
-        let suid = Encoder::new().fixed64(1, suid.low).fixed64(2, suid.high).finish();
-        let mut report = Encoder::new().bytes(1, &suid);
-        for (msg_id, payload) in events {
-            let event = Encoder::new()
-                .fixed32(1, *msg_id)
-                .fixed64(2, 42)
-                .bytes(3, payload)
-                .finish();
-            report = report.bytes(2, &event);
-        }
-        let report = report.finish();
-        let data = [&u16::try_from(report.len()).unwrap().to_le_bytes()[..], &report].concat();
-        Packet::Qmi(
-            qmi::encode(
-                Kind::Indication,
-                0,
-                msg::REPORT_LARGE,
-                &[(0x01, &9u64.to_le_bytes()), (0x02, &data)],
-            )
-            .unwrap(),
-        )
-    }
 
     fn client(incoming: Vec<Packet>) -> Client<Fake> {
         Client::new(Fake {

@@ -10,23 +10,30 @@ pub fn boottime_ns(tick: u64, now_tick: u64, now_ns: i64, freq: u64) -> Option<i
     i64::try_from(i128::from(now_ns).checked_sub(ago_ns)?).ok()
 }
 
-#[cfg(all(target_arch = "aarch64", any(target_os = "linux", target_os = "android")))]
-pub use device::Now;
+/// The counter and `CLOCK_BOOTTIME`, read together
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Now {
+    /// `CNTVCT_EL0`
+    pub tick: u64,
+    /// `CLOCK_BOOTTIME` in ns
+    pub boottime_ns: i64,
+    /// `CNTFRQ_EL0`
+    pub freq: u64,
+}
+
+impl Now {
+    /// Boot time in ns of `tick`
+    #[must_use]
+    pub fn boottime_of(&self, tick: u64) -> Option<i64> {
+        boottime_ns(tick, self.tick, self.boottime_ns, self.freq)
+    }
+}
 
 #[cfg(all(target_arch = "aarch64", any(target_os = "linux", target_os = "android")))]
 mod device {
     use std::io;
 
-    /// The counter and `CLOCK_BOOTTIME`, read together
-    #[derive(Debug, Clone, Copy)]
-    pub struct Now {
-        /// `CNTVCT_EL0`
-        pub tick: u64,
-        /// `CLOCK_BOOTTIME` in ns
-        pub boottime_ns: i64,
-        /// `CNTFRQ_EL0`
-        pub freq: u64,
-    }
+    use super::Now;
 
     impl Now {
         /// Reads both clocks
@@ -51,12 +58,6 @@ mod device {
                 boottime_ns,
                 freq: frequency(),
             })
-        }
-
-        /// Boot time in ns of `tick`
-        #[must_use]
-        pub fn boottime_of(&self, tick: u64) -> Option<i64> {
-            super::boottime_ns(tick, self.tick, self.boottime_ns, self.freq)
         }
     }
 

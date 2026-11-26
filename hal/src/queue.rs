@@ -54,11 +54,13 @@ impl EventQueue {
             self.drop_samples(samples.len());
             return;
         };
-        for event in (0..self.flushes).map(|_| flush_complete()).chain(samples) {
-            if txn.write(event).is_err() {
-                break;
-            }
+        for (slot, event) in (0..self.flushes).map(|_| flush_complete()).chain(samples).enumerate() {
+            // SAFETY: `slot` < `count`, so `ptr` is this transaction's aligned, writable slot for it, and `Event` is
+            // `repr(C)`, so the copy has the layout sensorservice reads
+            unsafe { ptr::write_volatile(txn.ptr(slot), event) };
         }
+        // SAFETY: the loop wrote all `count` slots
+        unsafe { txn.assume_written(count) };
         drop(txn);
         self.flushes = 0;
         self.wake();

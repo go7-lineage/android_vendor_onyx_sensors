@@ -54,6 +54,7 @@ impl EventQueue {
             self.drop_samples(samples.len());
             return;
         };
+        // Not `txn.write`: android-17 aidl's generated `WriteTo` puts union payloads at a wrong offset
         for (slot, event) in (0..self.flushes).map(|_| flush_complete()).chain(samples).enumerate() {
             // SAFETY: `slot` < `count`, so `ptr` is this transaction's aligned, writable slot for it, and `Event` is
             // `repr(C)`, so the copy has the layout sensorservice reads
